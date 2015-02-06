@@ -514,12 +514,18 @@ JSONEditor.Validator = Class.extend({
 
     return errors;
   },
+  nullableFloor: function(val) {
+    if (val === null) {
+      return null;
+    }
+    return Math.floor(val);
+  },
   _checkType: function(type, value) {
     // Simple types
     if(typeof type === "string") {
       if(type==="string") return typeof value === "string";
       else if(type==="number") return typeof value === "number";
-      else if(type==="integer") return typeof value === "number" && value === Math.floor(value);
+      else if(type==="integer") return typeof value === "number" && value === this.nullableFloor(value);
       else if(type==="boolean") return typeof value === "boolean";
       else if(type==="array") return Array.isArray(value);
       else if(type === "object") return value !== null && !(Array.isArray(value)) && typeof value === "object";

@@ -1284,12 +1284,18 @@ JSONEditor.Validator = Class.extend({
 
     return errors;
   },
+  nullableFloor: function(val) {
+    if (val === null) {
+      return null;
+    }
+    return Math.floor(val);
+  },
   _checkType: function(type, value) {
     // Simple types
     if(typeof type === "string") {
       if(type==="string") return typeof value === "string";
       else if(type==="number") return typeof value === "number";
-      else if(type==="integer") return typeof value === "number" && value === Math.floor(value);
+      else if(type==="integer") return typeof value === "number" && value === this.nullableFloor(value);
       else if(type==="boolean") return typeof value === "boolean";
       else if(type==="array") return Array.isArray(value);
       else if(type === "object") return value !== null && !(Array.isArray(value)) && typeof value === "object";
@@ -1641,7 +1647,7 @@ JSONEditor.AbstractEditor = Class.extend({
     if(typeof type === "string") {
       if(type === "number") return 0.0;
       if(type === "boolean") return false;
-      if(type === "integer") return 0;
+      if(type === "integer") return null;
       if(type === "string") return "";
       if(type === "object") return {};
       if(type === "array") return [];
@@ -2201,7 +2207,10 @@ JSONEditor.defaults.editors.number = JSONEditor.defaults.editors.string.extend({
     return 2;
   },
   getValue: function() {
-    return this.value*1;
+    if (this.value) {
+      return this.value*1;
+    }
+    return null;
   }
 });
 
