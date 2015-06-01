@@ -967,7 +967,7 @@ JSONEditor.Validator = Class.extend({
           errors.push({
             path: path,
             property: 'type',
-            message: this.translate('error_type', [schema.type])
+            message: this.translate('error_type', [(schema.type === 'posint' ? 'positive integer' : schema.type)])
           });
         }
       }
@@ -1332,6 +1332,7 @@ JSONEditor.Validator = Class.extend({
       if(type==="string") return typeof value === "string";
       else if(type==="number") return typeof value === "number";
       else if(type==="integer") return typeof value === "number" && value === this.nullableFloor(value);
+      else if(type==="posint") return typeof value === "number" && value === this.nullableFloor(value) && Math.sign(value) !== -1;
       else if(type==="boolean") return typeof value === "boolean";
       else if(type==="array") return Array.isArray(value);
       else if(type === "object") return value !== null && !(Array.isArray(value)) && typeof value === "object";
@@ -1696,6 +1697,7 @@ JSONEditor.AbstractEditor = Class.extend({
       if(type === "number") return null;
       if(type === "boolean") return false;
       if(type === "integer") return null;
+      if(type === "posint") return null;
       if(type === "string") return "";
       if(type === "object") return {};
       if(type === "array") return [];
@@ -2266,6 +2268,22 @@ JSONEditor.defaults.editors.integer = JSONEditor.defaults.editors.number.extend(
   sanitize: function(value) {
     value = (value + "").replace(/[^0-9\.\-]/g,'');
     if (value) {
+      return Math.floor(value);
+    }
+    return null;
+  },
+  getNumColumns: function() {
+    return 2;
+  }
+});
+
+JSONEditor.defaults.editors.posint = JSONEditor.defaults.editors.number.extend({
+  sanitize: function(value) {
+    value = (value + "").replace(/[^0-9\.\-]/g,'');
+    if (value) {
+//      if (Math.sign(value) === -1) {
+//        return 0;
+//      }
       return Math.floor(value);
     }
     return null;
@@ -4439,7 +4457,7 @@ JSONEditor.defaults.editors.multiple = JSONEditor.AbstractEditor.extend({
     }
     else {
       if(!this.schema.type || this.schema.type === "any") {
-        this.types = ['string','number','integer','boolean','object','array','null'];
+        this.types = ['string','number','integer', 'posint','boolean','object','array','null'];
 
         // If any of these primitive types are disallowed
         if(this.schema.disallow) {
@@ -4764,7 +4782,7 @@ JSONEditor.defaults.editors.select = JSONEditor.AbstractEditor.extend({
     else if(this.schema.type === "number") {
       return 1*value;
     }
-    else if(this.schema.type === "integer") {
+    else if(this.schema.type === "integer" || this.schema.type === "posint") {
       return Math.floor(value*1);
     }
     else {
@@ -5196,7 +5214,7 @@ JSONEditor.defaults.editors.multiselect = JSONEditor.AbstractEditor.extend({
     if(this.schema.items.type === "number") {
       return 1*value;
     }
-    else if(this.schema.items.type === "integer") {
+    else if(this.schema.items.type === "integer" || this.schema.items.type === "posint") {
       return Math.floor(value*1);
     }
     else {
@@ -7160,14 +7178,14 @@ JSONEditor.defaults.resolvers.unshift(function(schema) {
     if(schema.type === "array" || schema.type === "object") {
       return "enum";
     }
-    else if(schema.type === "number" || schema.type === "integer" || schema.type === "string") {
+    else if(schema.type === "number" || schema.type === "integer" || schema.type === "posint" || schema.type === "string") {
       return "select";
     }
   }
 });
 // Use the 'multiselect' editor for arrays of enumerated strings/numbers/integers
 JSONEditor.defaults.resolvers.unshift(function(schema) {
-  if(schema.type === "array" && schema.items && !(Array.isArray(schema.items)) && schema.uniqueItems && schema.items["enum"] && ['string','number','integer'].indexOf(schema.items.type) >= 0) {
+  if(schema.type === "array" && schema.items && !(Array.isArray(schema.items)) && schema.uniqueItems && schema.items["enum"] && ['string','number','integer', 'posint'].indexOf(schema.items.type) >= 0) {
     return 'multiselect';
   }
 });

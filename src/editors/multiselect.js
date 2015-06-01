@@ -152,7 +152,7 @@ JSONEditor.defaults.editors.multiselect = JSONEditor.AbstractEditor.extend({
     if(this.schema.items.type === "number") {
       return 1*value;
     }
-    else if(this.schema.items.type === "integer") {
+    else if(this.schema.items.type === "integer" || this.schema.items.type === "posint") {
       return Math.floor(value*1);
     }
     else {

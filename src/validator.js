@@ -162,7 +162,7 @@ JSONEditor.Validator = Class.extend({
           errors.push({
             path: path,
             property: 'type',
-            message: this.translate('error_type', [schema.type])
+            message: this.translate('error_type', [(schema.type === 'posint' ? 'positive integer' : schema.type)])
           });
         }
       }
@@ -527,6 +527,7 @@ JSONEditor.Validator = Class.extend({
       if(type==="string") return typeof value === "string";
       else if(type==="number") return typeof value === "number";
       else if(type==="integer") return typeof value === "number" && value === this.nullableFloor(value);
+      else if(type==="posint") return typeof value === "number" && value === this.nullableFloor(value) && Math.sign(value) !== -1;
       else if(type==="boolean") return typeof value === "boolean";
       else if(type==="array") return Array.isArray(value);
       else if(type === "object") return value !== null && !(Array.isArray(value)) && typeof value === "object";

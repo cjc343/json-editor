@@ -135,7 +135,7 @@ JSONEditor.defaults.editors.multiple = JSONEditor.AbstractEditor.extend({
     }
     else {
       if(!this.schema.type || this.schema.type === "any") {
-        this.types = ['string','number','integer','boolean','object','array','null'];
+        this.types = ['string','number','integer', 'posint','boolean','object','array','null'];
 
         // If any of these primitive types are disallowed
         if(this.schema.disallow) {

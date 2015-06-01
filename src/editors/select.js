@@ -42,7 +42,7 @@ JSONEditor.defaults.editors.select = JSONEditor.AbstractEditor.extend({
     else if(this.schema.type === "number") {
       return 1*value;
     }
-    else if(this.schema.type === "integer") {
+    else if(this.schema.type === "integer" || this.schema.type === "posint") {
       return Math.floor(value*1);
     }
     else {

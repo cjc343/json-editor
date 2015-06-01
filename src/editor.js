@@ -349,6 +349,7 @@ JSONEditor.AbstractEditor = Class.extend({
       if(type === "number") return null;
       if(type === "boolean") return false;
       if(type === "integer") return null;
+      if(type === "posint") return null;
       if(type === "string") return "";
       if(type === "object") return {};
       if(type === "array") return [];
