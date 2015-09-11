@@ -68,12 +68,26 @@ JSONEditor.defaults.editors.select = JSONEditor.AbstractEditor.extend({
         self.enum_display[i] = ""+(display[i] || option);
         self.enum_values[i] = self.typecast(option);
       });
+
+      if(!this.isRequired()){
+        self.enum_display.unshift(' ');
+        self.enum_options.unshift('undefined');
+        self.enum_values.unshift(undefined);
+      }
+            
     }
     // Boolean
     else if(this.schema.type === "boolean") {
       self.enum_display = this.schema.options && this.schema.options.enum_titles || ['true','false'];
       self.enum_options = ['1',''];
       self.enum_values = [true,false];
+      
+      if(!this.isRequired()){
+        self.enum_display.unshift(' ');
+        self.enum_options.unshift('undefined');
+        self.enum_values.unshift(undefined);
+      }
+    
     }
     // Dynamic Enum
     else if(this.schema.enumSource) {
@@ -211,57 +225,65 @@ JSONEditor.defaults.editors.select = JSONEditor.AbstractEditor.extend({
           select_options = select_options.concat(this.enumSource[i]);
           select_titles = select_titles.concat(this.enumSource[i]);
         }
-        // A watched field
-        else if(vars[this.enumSource[i].source]) {
-          var items = vars[this.enumSource[i].source];
-          
-          // Only use a predefined part of the array
-          if(this.enumSource[i].slice) {
-            items = Array.prototype.slice.apply(items,this.enumSource[i].slice);
+        else {
+          var items = [];
+          // Static list of items
+          if(Array.isArray(this.enumSource[i].source)) {
+            items = this.enumSource[i].source;
+          // A watched field
+          } else {
+            items = vars[this.enumSource[i].source];
           }
-          // Filter the items
-          if(this.enumSource[i].filter) {
-            var new_items = [];
+          
+          if(items) {
+            // Only use a predefined part of the array
+            if(this.enumSource[i].slice) {
+              items = Array.prototype.slice.apply(items,this.enumSource[i].slice);
+            }
+            // Filter the items
+            if(this.enumSource[i].filter) {
+              var new_items = [];
+              for(j=0; j<items.length; j++) {
+                if(this.enumSource[i].filter({i:j,item:items[j],watched:vars})) new_items.push(items[j]);
+              }
+              items = new_items;
+            }
+            
+            var item_titles = [];
+            var item_values = [];
             for(j=0; j<items.length; j++) {
-              if(this.enumSource[i].filter({i:j,item:items[j]})) new_items.push(items[j]);
+              var item = items[j];
+              
+              // Rendered value
+              if(this.enumSource[i].value) {
+                item_values[j] = this.enumSource[i].value({
+                  i: j,
+                  item: item
+                });
+              }
+              // Use value directly
+              else {
+                item_values[j] = items[j];
+              }
+              
+              // Rendered title
+              if(this.enumSource[i].title) {
+                item_titles[j] = this.enumSource[i].title({
+                  i: j,
+                  item: item
+                });
+              }
+              // Use value as the title also
+              else {
+                item_titles[j] = item_values[j];
+              }
             }
-            items = new_items;
-          }
-          
-          var item_titles = [];
-          var item_values = [];
-          for(j=0; j<items.length; j++) {
-            var item = items[j];
             
-            // Rendered value
-            if(this.enumSource[i].value) {
-              item_values[j] = this.enumSource[i].value({
-                i: j,
-                item: item
-              });
-            }
-            // Use value directly
-            else {
-              item_values[j] = items[j];
-            }
+            // TODO: sort
             
-            // Rendered title
-            if(this.enumSource[i].title) {
-              item_titles[j] = this.enumSource[i].title({
-                i: j,
-                item: item
-              });
-            }
-            // Use value as the title also
-            else {
-              item_titles[j] = item_values[j];
-            }
+            select_options = select_options.concat(item_values);
+            select_titles = select_titles.concat(item_titles);
           }
-          
-          // TODO: sort
-          
-          select_options = select_options.concat(item_values);
-          select_titles = select_titles.concat(item_titles);
         }
       }
       

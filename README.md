@@ -16,7 +16,7 @@ Download the [production version][min] (22K when gzipped) or the [development ve
 Requirements
 -----------------
 
-JSON Schema has no required dependencies.  It only needs a modern browser (tested in Chrome and Firefox).
+JSON Editor has no required dependencies.  It only needs a modern browser (tested in Chrome and Firefox).
 
 ### Optional Requirements
 
@@ -39,7 +39,7 @@ If you learn best by example, check these out:
 *  Advanced Usage Example - http://rawgithub.com/jdorn/json-editor/master/examples/advanced.html
 *  CSS Integration Example - http://rawgithub.com/jdorn/json-editor/master/examples/css_integration.html
 
-The rest of this README contains detailed documentation about every aspect of JSON Editor.
+The rest of this README contains detailed documentation about every aspect of JSON Editor.  For more under-the-hood documentation, check the wiki.
 
 ### Initialize
 
@@ -134,6 +134,11 @@ Here are all the available options:
     <td>required_by_default</td>
     <td>If <code>true</code>, all schemas that don't explicitly set the <code>required</code> property will be required.</td>
     <td><code>false</code></td>
+  </tr>
+  <tr>
+    <td>keep_oneof_values</td>
+    <td>If <code>true</code>, makes oneOf copy properties over when switching.</td>
+    <td><code>true</code></td>
   </tr>
   <tr>
     <td>schema</td>
@@ -947,6 +952,29 @@ Here's a more complex example (this uses the Swig template engine syntax to show
     },
     // Another constant value at the end of the list
     ["transparent"]
+  ]
+}
+```
+
+You can also specify a list of static items with a slightly different syntax:
+
+```js+jinja
+{
+  "enumSource": [{
+      // A watched field source
+      "source": [
+        {
+          "value": 1,
+          "title": "One"
+        },
+        {
+          "value": 2,
+          "title": "Two"
+        }
+      ],
+      "title": "{{item.title}}",
+      "value": "{{item.value}}"
+    }]
   ]
 }
 ```
