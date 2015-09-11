@@ -95,7 +95,7 @@ JSONEditor.defaults.editors.multiselect = JSONEditor.AbstractEditor.extend({
         if(this.schema.options && this.schema.options.select2_options) options = $extend(options,this.schema.options.select2_options);
         this.select2 = window.jQuery(this.input).select2(options);
         var self = this;
-        this.select2.on('select2-blur',function() {
+        this.select2.on('change',function() {
             var val =self.select2.select2('val');
             self.value = val;
             self.onChange(true);
